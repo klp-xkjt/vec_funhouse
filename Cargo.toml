@@ -3,7 +3,9 @@ name = "vec_funhouse"
 version = "0.1.0"
 edition = "2024"
 description = "This crate is a vector tool."
-keywords = ["Vector"]
 license = "MIT"
+repository = "https://github.com/klp-xkjt/vec_funhouse"
+categories = ["development-tools"]
+keywords = ["vector", "filter", "utilities"]
 
 [dependencies]
