@@ -13,7 +13,7 @@ use crate::filter_range;
 ///
 /// # 类型约束
 ///
-/// * `T` - 必须实现 `PartialOrd`（可比较大小）和 `Copy`（可复制）
+/// * `T` - 必须实现 `PartialOrd`（可比较大小）
 ///
 /// # 示例
 ///
@@ -33,15 +33,24 @@ use crate::filter_range;
 ///
 /// # 注意
 ///
-/// 规则的顺序会影响最终结果，因为过滤是按顺序执行的。
+/// - 规则的顺序会影响最终结果，因为过滤是按顺序执行的
+/// - 每个 `RangeConfig` 会以引用方式传递给 `filter_range`
+///
+/// # 性能提示
+///
+/// 对于大量规则的场景，考虑将多个规则合并为一次遍历（需要手动实现组合逻辑），
+/// 当前实现会多次遍历向量，但逻辑清晰易懂。
 pub fn filter_multi_range<T>(vector: &mut Vec<T>, rules: &[(RangeConfig<T>, RangeMode)])
 where
-    T: PartialOrd + Copy,
-    {
-        for (config, mode) in rules.iter() {
-            filter_range(vector, *config, *mode);
-        }
+    T: PartialOrd,
+{
+    for (config, mode) in rules.iter() {
+        filter_range(vector, &config, *mode);
+        // 注意：config 类型是 &RangeConfig<T>，mode 是 &RangeMode，
+        // 但 filter_range 接受 &RangeConfig<T> 和 RangeMode（Copy），
+        // 所以 mode 需要解引用（*mode）或传入 mode.clone()
     }
+}
 
 
 /// 按顺序应用多个闭包过滤条件
@@ -56,7 +65,7 @@ where
 ///
 /// # 类型约束
 ///
-/// * `T` - 必须实现 `PartialOrd`（可比较大小）和 `Copy`（可复制）
+/// * `T` - 必须实现 `PartialOrd`（可比较大小）
 /// * `F` - 闭包类型，必须实现 `Fn(&T) -> bool`
 ///
 /// # 示例
@@ -83,13 +92,14 @@ where
 ///
 pub fn filter_multi_closure<T, F>(vector: &mut Vec<T>, rules: &[F]) 
 where
-    T: PartialOrd + Copy,
+    T: PartialOrd,
     F: Fn(&T) -> bool,
     {
         for rule in rules {
             vector.retain(rule);
         }
     }
+
 
 #[cfg(test)]
 mod tests {

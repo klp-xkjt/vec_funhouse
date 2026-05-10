@@ -8,11 +8,12 @@
 /// use vec_funhouse::{keep_value, HowToKeep};
 ///
 /// let mut v = vec![1, 2, 3, 4, 5];
-/// keep_value(&mut v, 3, HowToKeep::Above);      // 保留 >3  → [4, 5]
-/// keep_value(&mut v, 3, HowToKeep::Below);      // 保留 <3  → [1, 2]
-/// keep_value(&mut v, 3, HowToKeep::AboveIncluding); // 保留 ≥3 → [3, 4, 5]
-/// keep_value(&mut v, 3, HowToKeep::BelowIncluding); // 保留 ≤3 → [1, 2, 3]
+/// keep_value(&mut v, &3, HowToKeep::Above);      // 保留 >3  → [4, 5]
+/// keep_value(&mut v, &3, HowToKeep::Below);      // 保留 <3  → [1, 2]
+/// keep_value(&mut v, &3, HowToKeep::AboveIncluding); // 保留 ≥3 → [3, 4, 5]
+/// keep_value(&mut v, &3, HowToKeep::BelowIncluding); // 保留 ≤3 → [1, 2, 3]
 /// ```
+#[derive(Debug, Clone, Copy)]
 pub enum HowToKeep {
     /// 保留大于阈值的元素（不包含边界）`>`
     Above,
@@ -36,10 +37,10 @@ pub enum HowToKeep {
 /// let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
 /// let config = RangeConfig { low: 4, high: 7, include_low: true, include_high: true };
 ///
-/// filter_range(&mut v, config, RangeMode::KeepInside);  // 保留 [4,5,6,7]
-/// filter_range(&mut v, config, RangeMode::KeepOutside); // 排除 [4,5,6,7]
+/// filter_range(&mut v, &config, RangeMode::KeepInside);  // 保留 [4,5,6,7]
+/// filter_range(&mut v, &config, RangeMode::KeepOutside); // 排除 [4,5,6,7]
 /// ```
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy, Debug)]
 pub enum RangeMode {
     /// 保留区间内的元素
     KeepInside,
@@ -66,7 +67,7 @@ pub enum RangeMode {
 /// // 区间 (4, 7]（不包含下限，包含上限）
 /// let config3 = RangeConfig { low: 4, high: 7, include_low: false, include_high: true };
 /// ```
-#[derive(Copy, Clone)]
+#[derive(Clone, Debug)]
 pub struct RangeConfig<T> {
     /// 区间下限
     pub low: T,
@@ -88,4 +89,22 @@ impl<T> RangeConfig<T> {
     pub fn exclusive(low: T, high: T) -> Self {
         Self { low, high, include_low: false, include_high: false }
     }
+}
+
+/// 连接方向选择
+///
+/// 指定将哪个向量移动到另一个向量中。
+///
+/// # 示例
+/// ```
+/// use vec_funhouse::ConnectWithWhat;
+///
+/// let direction = ConnectWithWhat::First;  // 将 vector2 移到 vector1
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ConnectWithWhat {
+    /// 将第二个向量移动到第一个向量
+    First,
+    /// 将第一个向量移动到第二个向量
+    Second,
 }
